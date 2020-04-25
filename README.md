@@ -1,0 +1,1 @@
+This project is the bootloader for this [project](https://github.com/borna-blazevic/bachelors-project) and is not standalone.
