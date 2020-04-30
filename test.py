@@ -20,8 +20,7 @@ p1 = Popen('qemu-system-arm -machine lm3s6965evb -serial pty -kernel output/comb
           shell=True, stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
 stdout_data = p1.stdout.readline()
-
-pty = re.search("/(.+?)[0-9]", stdout_data.decode("utf-8")).group(0)
+pty = re.search("/(.+?)[0-9]+", stdout_data.decode("utf-8")).group(0)
 
 
 print("QEMU emulator avaliable at: ", pty)
@@ -30,7 +29,7 @@ print("Firmware size: ", fileSize)
 
 
 with open(pty, "wb+", buffering=0) as term:
-    print(term.readline().decode(), end='')
+    print(term.readline().decode())
     sys.stdout.flush()
     term.write(fileSize.to_bytes(4,byteorder="little",signed=False))
     with open(os.path.join(CURRENT_PATH, FIRMWARE_LOCATION), "rb") as f:
