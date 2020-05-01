@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package firmware_upgrade;
+
+message srec_line{
+    string record_type = 1;
+    string byte_count = 2;
+    string address = 3;
+    string data = 4;
+    string checksum = 5;
+}
+
+message send_packet{
+    int32 sent_checksum = 1;
+    srec_line line = 2;
+    bytes message_checksum = 3;
+}
+
+message acknowledge{
+    bytes acknowledge = 1;
+}
+
+message reject{
+    bytes reject = 1;
+}
+
+message ready{
+    bytes ready = 1;
+}

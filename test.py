@@ -7,10 +7,12 @@ import re
 import time
 import os
 import binascii
+import crcmod
+from proto.firmware_package_pb2 import *
 
 CURRENT_PATH = os.path.abspath(os.path.dirname(__file__))
 
-FIRMWARE_LOCATION = "./firmware/firmware.bin"
+FIRMWARE_LOCATION = "./firmware/firmware.srec"
 
 if(len(sys.argv) < 2):
     print("USING DEFAULT LOCATION \"" , FIRMWARE_LOCATION, "\"")
@@ -32,18 +34,37 @@ with open(pty, "wb+", buffering=0) as term:
     print(term.readline().decode())
     sys.stdout.flush()
     term.write(fileSize.to_bytes(4,byteorder="little",signed=False))
-    with open(os.path.join(CURRENT_PATH, FIRMWARE_LOCATION), "rb") as f:
+    with open(os.path.join(CURRENT_PATH, FIRMWARE_LOCATION), "r") as f:
         print("Executing firmware upgrade")
-        byte = f.read(1)
-        while byte:
-            term.write(byte)
-            res = term.readline().decode()
-            if(not (res.rstrip() =='Byte recieved' or res.rstrip() == 'Bytes written')):
-                print("Error")
-                print(res.rstrip())
-                sys.stdout.flush()
-            else:
-                sys.stdout.flush()
+
+        
+        while True:
+            packet = send_packet()
+            packet.line.record_type = f.read(2)
+            if(not packet.line.record_type):
+                break
+            packet.line.byte_count = f.read(2)
+            if(not packet.line.byte_count):
+                break
+            packet.line.address = f.read(4)
+            if(not packet.line.address):
+                break
+            packet.line.data = f.read(2*int(packet.line.byte_count, 16)-6)
+            if(not packet.line.data):
+                break
+            packet.line.checksum = f.read(2)
+            if(not packet.line.checksum):
+                break
+
+            print(packet.line.SerializeToString())
+            # term.write(byte)
+            # res = term.readline().decode()
+            # if(not (res.rstrip() =='Byte recieved' or res.rstrip() == 'Bytes written')):
+            #     print("Error")
+            #     print(res.rstrip())
+            #     sys.stdout.flush()
+            # else:
+            #     sys.stdout.flush()
             byte = f.read(1)
     print("Finished sending firmware!")
     while True:
