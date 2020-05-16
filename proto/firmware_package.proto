@@ -4,13 +4,13 @@ package firmware_upgrade;
 
 message srec_line{
     string record_type = 1;
-    string byte_count = 2;
-    string address = 3;
-    string data = 4;
-    string checksum = 5;
+    int32 byte_count = 2;
+    int32 address = 3;
+    bytes data = 4;
+    int32 checksum = 5;
 }
 
-message send_packet{
+message firmware_packet{
     int32 sent_checksum = 1;
     srec_line line = 2;
     bytes message_checksum = 3;
