@@ -11,9 +11,8 @@ message srec_line{
 }
 
 message firmware_packet{
-    uint32 sent_checksum = 1;
+    uint32 checksum = 1;
     srec_line line = 2;
-    bytes message_checksum = 3;
 }
 
 message status{
