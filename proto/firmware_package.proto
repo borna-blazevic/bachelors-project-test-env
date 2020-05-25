@@ -16,14 +16,11 @@ message firmware_packet{
     bytes message_checksum = 3;
 }
 
-message acknowledge{
-    bytes acknowledge = 1;
-}
-
-message reject{
-    bytes reject = 1;
-}
-
-message ready{
-    bytes ready = 1;
+message status{
+    enum status_enum {
+        READY = 0;
+        ACK = 1;
+        REJECT = 2;
+    }
+    status_enum status = 1;
 }
