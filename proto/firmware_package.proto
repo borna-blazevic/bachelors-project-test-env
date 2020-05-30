@@ -4,22 +4,23 @@ package firmware_upgrade;
 
 message srec_line{
     string record_type = 1;
-    uint32 byte_count = 2;
-    int32 address = 3;
+    fixed32 byte_count = 2;
+    fixed32 address = 3;
     bytes data = 4;
-    uint32 checksum = 5;
+    fixed32 checksum = 5;
 }
 
 message firmware_packet{
-    uint32 checksum = 1;
+    fixed32 checksum = 1;
     srec_line line = 2;
 }
 
 message status{
     enum status_enum {
-        READY = 0;
-        ACK = 1;
-        REJECT = 2;
+        UNUSED = 0;
+        READY = 1;
+        ACK = 2;
+        REJECT = 3;
     }
     status_enum status = 1;
 }
