@@ -42,27 +42,36 @@ with serial.Serial('/dev/ttyUSB0', 115200, timeout=1) as term:
         crc = CrcSTM()
         checksum_data = 0
         proceed = 0
+        first_message = 1
         while True:
             p = term.readline()
             while True:
-                if p != b'':
+                if p != b'' and p!=b'\xff\n' and p!=b'\xff':
                     try:
                         p = p[:-1]
                         status_msg = firmware.status()
 
                         status_msg.ParseFromString(p)
                         if status_msg.status == firmware.status.status_enum.READY:
-                            proceed = 1
+                            if first_message:
+                                first_message = 0
+                                proceed = 1
+                            else:
+                                proceed = 0
+                            print('.', end='')
+                            sys.stdout.flush()
                             break
                         if status_msg.status == firmware.status.status_enum.ACK:
                             proceed = 1
+                            print('.', end='')
+                            sys.stdout.flush()
                             break
                         if status_msg.status == firmware.status.status_enum.REJECT:
                             proceed = 0
                             break
 
-                    except Exception as e:
-                        print(e)
+                    except:
+                        print("\n[DEBUG MESSAGE]")
                         print(p)
                 p = term.readline()
 
@@ -93,11 +102,15 @@ with serial.Serial('/dev/ttyUSB0', 115200, timeout=1) as term:
 
                 packet.checksum = crc.calc(checksum_data)
                 f.read(1)
+            else:
+                print("\n[DEBUG MESSAGE]")
+                print(packet.SerializeToString())
+            
 
             term.write(bytes([packet.ByteSize()]))
             term.write(packet.SerializeToString())
 
-        print("Finished sending firmware!")
+        print("\nFinished sending firmware!")
         while True:
             p = term.readline()
             if p != b'':
